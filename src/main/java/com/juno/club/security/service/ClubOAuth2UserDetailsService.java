@@ -14,6 +14,7 @@ import com.juno.club.entity.ClubMember;
 import com.juno.club.repository.ClubMemberRepository;
 import com.juno.club.security.dto.ClubAuthMemberDTO;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,8 +48,16 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
 
         String email = null;
         String socialType = null;
-        
-        // 같은 구문임에도 분기를 타는 이유는 명시적 & 방어
+
+        /**
+         *  같은 구문임에도 분기를 타는 이유는 명시적 & 방어
+         *  + 각 회사별 값추출 상이
+         *
+         * 이메일만 가져올 경우를 가정하에
+         *  Naver
+         *      ? (String) ((Map<String, Object>) oAuth2User.getAttributes().get("response")).get("email")
+         *      : oAuth2User.getAttribute("email");
+         */
         if(clientName.equals("Google")){
             email = oAuth2User.getAttribute("email");
             socialType = clientName;
@@ -56,7 +65,7 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
             email = oAuth2User.getAttribute("email");
             socialType = clientName;
         } else if(clientName.equals("Naver")) {
-            email = oAuth2User.getAttribute("email");
+            email = (String) ((Map<String, Object>) oAuth2User.getAttributes().get("response")).get("email");
             socialType = clientName;
         }
 
@@ -108,5 +117,17 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
 
         return clubMember;
     }
+
+//    private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
+//        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+//
+//        return OAuthAttributes.builder()
+//                .email((String) response.get("email"))
+//                .name((String) response.get("name"))
+//                .picture((String) response.get("profile_image"))
+//                .attributes(response)
+//                .nameAttributeKey(userNameAttributeName)
+//                .build();
+//    }
 
 }
