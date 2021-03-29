@@ -47,11 +47,15 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
 
         String email = null;
         String socialType = null;
-
+        
+        // 같은 구문임에도 분기를 타는 이유는 명시적 & 방어
         if(clientName.equals("Google")){
             email = oAuth2User.getAttribute("email");
             socialType = clientName;
         } else if(clientName.equals("Facebook")) {
+            email = oAuth2User.getAttribute("email");
+            socialType = clientName;
+        } else if(clientName.equals("Naver")) {
             email = oAuth2User.getAttribute("email");
             socialType = clientName;
         }
