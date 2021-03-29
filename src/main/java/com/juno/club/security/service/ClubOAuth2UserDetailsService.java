@@ -46,9 +46,14 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
         });
 
         String email = null;
+        String socialType = null;
 
         if(clientName.equals("Google")){
             email = oAuth2User.getAttribute("email");
+            socialType = clientName;
+        } else if(clientName.equals("Facebook")) {
+            email = oAuth2User.getAttribute("email");
+            socialType = clientName;
         }
 
         log.info("EMAIL: " + email);
@@ -56,7 +61,7 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
 //        ClubMember member = saveSocialMember(email); //조금 뒤에 사용
 //
 //        return oAuth2User;
-        ClubMember member = saveSocialMember(email);
+        ClubMember member = saveSocialMember(email, socialType);
 
         ClubAuthMemberDTO clubAuthMember = new ClubAuthMemberDTO(
                 member.getEmail(),
@@ -75,7 +80,7 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
     }
 
 
-    private ClubMember saveSocialMember(String email){
+    private ClubMember saveSocialMember(String email, String socialType){
 
         //기존에 동일한 이메일로 가입한 회원이 있는 경우에는 그대로 조회만
         Optional<ClubMember> result = repository.findByEmail(email, true);
@@ -89,6 +94,7 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
                 .name(email)
                 .password( passwordEncoder.encode("1111") )
                 .fromSocial(true)
+                .socialType(socialType)
                 .build();
 
         clubMember.addMemberRole(ClubMemberRole.USER);
