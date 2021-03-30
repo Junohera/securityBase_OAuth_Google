@@ -4,45 +4,28 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.aspectj.weaver.ast.Not;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @Builder
 @Getter
 @Log4j2
 @ToString
 public class OAuthAttributes {
+
     private String nickname;
     private String name;
     private String email;
     private String picture;
     private String socialType;
 
-    public static OAuthAttributes of(
-            OAuth2User oAuth2User
-            , String clientName
-    ) {
-        if ("Naver".equals(clientName)) {
-            return ofNaver(oAuth2User);
-        }
-        else if ("Kakao".equals(clientName)) {
-            return ofKakao(oAuth2User);
-        }
-        else if ("Facebook".equals(clientName)) {
-            return ofFacebook(oAuth2User);
-        }
-        else if ("GitHub".equals(clientName)) {
-            return ofGithub(oAuth2User);
-        }
-        else {
-            return ofGoogle(oAuth2User);
-        }
+    public static OAuthAttributes of(OAuth2User oAuth2User, String clientName) {
+        if ("Naver".equals(clientName)) return ofNaver(oAuth2User);
+        else if ("Kakao".equals(clientName)) return ofKakao(oAuth2User);
+        else if ("Facebook".equals(clientName)) return ofFacebook(oAuth2User);
+        else if ("GitHub".equals(clientName)) return ofGithub(oAuth2User);
+        else return ofGoogle(oAuth2User);
     }
 
     private static OAuthAttributes ofGithub(OAuth2User oAuth2User) {
@@ -74,7 +57,6 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofNaver(OAuth2User oAuth2User) {
         Map<String, Object> response = oAuth2User.getAttribute("response");
-        log.info("response : " + response);
         return OAuthAttributes.builder()
                 .nickname((String) response.get("nickname"))
                 .name((String) response.get("name"))
@@ -82,7 +64,6 @@ public class OAuthAttributes {
                 .picture((String) response.get("profile_image"))
                 .socialType("Naver")
                 .build();
-
     }
 
     private static OAuthAttributes ofKakao(OAuth2User oAuth2User) {

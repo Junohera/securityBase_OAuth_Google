@@ -49,7 +49,6 @@ public class ClubUserDetailsService  implements UserDetailsService {
 
         clubAuthMember.setName(clubMember.getName());
 
-
         return clubAuthMember;
     }
 }
