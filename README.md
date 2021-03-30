@@ -43,14 +43,18 @@ spring.security.oauth2.client.provider.kakao.authorization-uri=https://kauth.kak
 spring.security.oauth2.client.provider.kakao.token-uri=https://kauth.kakao.com/oauth/token
 spring.security.oauth2.client.provider.kakao.user-info-uri=https://kapi.kakao.com/v2/user/me
 spring.security.oauth2.client.provider.kakao.user-name-attribute=id
+
+#################### GitHub ####################
+spring.security.oauth2.client.registration.github.client-id=[API_KEY_ID]
+spring.security.oauth2.client.registration.github.client-secret=[API_SECRET]
+spring.security.oauth2.client.registration.github.access-token-uri=https://github.com/login/oauth/access_token
+spring.security.oauth2.client.registration.github.user-authorization-uri=https://github.com/login/oauth/authorize
+spring.security.oauth2.client.registration.github.redirect-uri={baseUrl}/{action}/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.github.client-authentication-scheme=form
+#spring.security.oauth2.client.registration.github.scope=user:email
+
+spring.security.oauth2.client.provider.github.user-info-uri=https://api.github.com/user
 ```
 
 > oauth2에 규약에 google과 facebook만 제대로 지원되고있어 springboot에서도 해당 플랫폼만 원활히 제공되어 나머지플랫폼은 귀찮은 작업을 해줘야함.
 
-### if naver
-1. response객체 까야 회원정보 나옴.
-
-### if kakao
-1. 카카오의 경우 api키로 사용자 token을 발급받고 해야함.
-1. 가장 좋은건 1의 로직을 서버상에 추가하고 사용하는 것이지만, 굳이 그럴필요없이, 패킷통신툴로 토큰조회 한다음, 해당 토큰을 서버에 세팅하여 사용
-> [blog ref](https://codecrafting.tistory.com/16)

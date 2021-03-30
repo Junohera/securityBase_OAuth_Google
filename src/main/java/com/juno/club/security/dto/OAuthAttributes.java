@@ -36,9 +36,23 @@ public class OAuthAttributes {
         }
         else if ("Facebook".equals(clientName)) {
             return ofFacebook(oAuth2User);
-        } else {
+        }
+        else if ("GitHub".equals(clientName)) {
+            return ofGithub(oAuth2User);
+        }
+        else {
             return ofGoogle(oAuth2User);
         }
+    }
+
+    private static OAuthAttributes ofGithub(OAuth2User oAuth2User) {
+        return OAuthAttributes.builder()
+                .nickname((String) oAuth2User.getAttribute("login"))
+                .name((String) oAuth2User.getAttribute("name"))
+                .email((String) oAuth2User.getAttribute("email"))
+                .picture((String) oAuth2User.getAttribute("avatar_url"))
+                .socialType("GitHub")
+                .build();
     }
 
     private static OAuthAttributes ofGoogle(OAuth2User oAuth2User) {
@@ -57,8 +71,6 @@ public class OAuthAttributes {
                 .socialType("Facebook")
                 .build();
     }
-
-
 
     private static OAuthAttributes ofNaver(OAuth2User oAuth2User) {
         Map<String, Object> response = oAuth2User.getAttribute("response");
@@ -83,6 +95,5 @@ public class OAuthAttributes {
                 .socialType("Kakao")
                 .build();
     }
-
 
 }
