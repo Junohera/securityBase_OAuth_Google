@@ -1,6 +1,7 @@
 package com.juno.club.security.service;
 
 import com.juno.club.entity.ClubMemberRole;
+import com.juno.club.security.dto.OAuthAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import com.juno.club.entity.ClubMember;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
-
 
     private final ClubMemberRepository repository;
 
@@ -46,35 +47,16 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
             log.info(k +":" + v);
         });
 
-        String email = null;
-        String socialType = null;
+        OAuthAttributes oauthInfo = OAuthAttributes.of(oAuth2User, clientName);
 
-        /**
-         *  같은 구문임에도 분기를 타는 이유는 명시적 & 방어
-         *  + 각 회사별 값추출 상이
-         *
-         * 이메일만 가져올 경우를 가정하에
-         *  Naver
-         *      ? (String) ((Map<String, Object>) oAuth2User.getAttributes().get("response")).get("email")
-         *      : oAuth2User.getAttribute("email");
-         */
-        if(clientName.equals("Google")){
-            email = oAuth2User.getAttribute("email");
-            socialType = clientName;
-        } else if(clientName.equals("Facebook")) {
-            email = oAuth2User.getAttribute("email");
-            socialType = clientName;
-        } else if(clientName.equals("Naver")) {
-            email = (String) ((Map<String, Object>) oAuth2User.getAttributes().get("response")).get("email");
-            socialType = clientName;
+        log.info("oauthInfo : " + oauthInfo);
+
+        // 유효하지않은 email(id)일 경우,(ex:카카오 이메일 미동의시)
+        if (oauthInfo.getEmail() == null || oauthInfo.getEmail().equals("")) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("email"));
         }
 
-        log.info("EMAIL: " + email);
-
-//        ClubMember member = saveSocialMember(email); //조금 뒤에 사용
-//
-//        return oAuth2User;
-        ClubMember member = saveSocialMember(email, socialType);
+        ClubMember member = saveSocialMember(oauthInfo);
 
         ClubAuthMemberDTO clubAuthMember = new ClubAuthMemberDTO(
                 member.getEmail(),
@@ -93,21 +75,21 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
     }
 
 
-    private ClubMember saveSocialMember(String email, String socialType){
+    private ClubMember saveSocialMember(OAuthAttributes oauthInfo){
 
         //기존에 동일한 이메일로 가입한 회원이 있는 경우에는 그대로 조회만
-        Optional<ClubMember> result = repository.findByEmail(email, true);
+        Optional<ClubMember> result = repository.findByEmail(oauthInfo.getEmail(), true);
 
         if(result.isPresent()){
             return result.get();
         }
 
         //없다면 회원 추가 패스워드는 1111 이름은 그냥 이메일 주소로
-        ClubMember clubMember = ClubMember.builder().email(email)
-                .name(email)
+        ClubMember clubMember = ClubMember.builder().email(oauthInfo.getEmail())
+                .name(oauthInfo.getName())
                 .password( passwordEncoder.encode("1111") )
                 .fromSocial(true)
-                .socialType(socialType)
+                .socialType(oauthInfo.getSocialType())
                 .build();
 
         clubMember.addMemberRole(ClubMemberRole.USER);
@@ -117,17 +99,4 @@ public class ClubOAuth2UserDetailsService extends DefaultOAuth2UserService {
 
         return clubMember;
     }
-
-//    private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
-//        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
-//
-//        return OAuthAttributes.builder()
-//                .email((String) response.get("email"))
-//                .name((String) response.get("name"))
-//                .picture((String) response.get("profile_image"))
-//                .attributes(response)
-//                .nameAttributeKey(userNameAttributeName)
-//                .build();
-//    }
-
 }

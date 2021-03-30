@@ -1,7 +1,8 @@
 
 package com.juno.club.config;
 
-import com.juno.club.security.handler.ClubLoginSuccessHandler;
+import com.juno.club.security.handler.CustomAuthenticationFailureHandler;
+import com.juno.club.security.handler.CustomAuthenticationSuccessHandler;
 import com.juno.club.security.service.ClubUserDetailsService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -37,13 +37,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin();
         http.csrf().disable();
         http.logout();
-        http.oauth2Login().successHandler(successHandler());
+        http.oauth2Login().successHandler(successHandler()).failureHandler(failureHandler());
         http.rememberMe().tokenValiditySeconds(60*60*7).userDetailsService(userDetailsService);  //7days
     }
 
     @Bean
-    public ClubLoginSuccessHandler successHandler() {
-        return new ClubLoginSuccessHandler(passwordEncoder());
+    public CustomAuthenticationSuccessHandler successHandler() {
+        return new CustomAuthenticationSuccessHandler(passwordEncoder());
+    }
+
+    @Bean
+    public CustomAuthenticationFailureHandler failureHandler() {
+        return new CustomAuthenticationFailureHandler();
     }
 
 
