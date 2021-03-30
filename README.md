@@ -32,7 +32,7 @@ spring.security.oauth2.client.provider.naver.user_name_attribute=response
 # registration
 spring.security.oauth2.client.registration.kakao.client-id=${id}
 spring.security.oauth2.client.registration.kakao.client-name=kakao
-spring.security.oauth2.client.registration.kakao.redirect-uri={baseUrl}/{action}/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.kakao.redirect-uri={baseUrl}/{action}/auth2/code/{registrationId}
 spring.security.oauth2.client.registration.kakao.client-authentication-method=post
 spring.security.oauth2.client.registration.kakao.authorization-grant-type=authorization_code
 
