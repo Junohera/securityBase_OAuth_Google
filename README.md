@@ -51,7 +51,6 @@ spring.security.oauth2.client.registration.github.access-token-uri=https://githu
 spring.security.oauth2.client.registration.github.user-authorization-uri=https://github.com/login/oauth/authorize
 spring.security.oauth2.client.registration.github.redirect-uri={baseUrl}/{action}/oauth2/code/{registrationId}
 spring.security.oauth2.client.registration.github.client-authentication-scheme=form
-#spring.security.oauth2.client.registration.github.scope=user:email
 
 spring.security.oauth2.client.provider.github.user-info-uri=https://api.github.com/user
 ```
